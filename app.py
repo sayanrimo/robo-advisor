@@ -88,8 +88,11 @@ def allocate_plot(n, assets, cap, rt_text):
     perf_fig.update_layout(title='Portfolio Value Over Time', xaxis_title='Date', yaxis_title='Value')
     return alloc_fig, perf_fig
 
-if __name__ == '__main__':
-    dash_app.run(debug=True)
+if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 8050))
+    dash_app.run(host="0.0.0.0", port=port, debug=True)
+
 
 '''
 # Write app.py file
