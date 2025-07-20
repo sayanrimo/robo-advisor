@@ -6,4 +6,5 @@ numpy
 plotly
 scikit-learn
 matplotlib
+dash-bootstrap-components
 shap
