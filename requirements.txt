@@ -1,7 +1,7 @@
-dash==3.1.1
-Flask==2.2.5
-Werkzeug==2.2.3
+dash
+dash-bootstrap-components
 pandas
-numpy
 plotly
+joblib
 scikit-learn
+shap
