@@ -142,6 +142,7 @@ def allocate_plot(n, assets, rt_text):
     perf_fig.update_layout(title='Portfolio Value of $100 Investment', xaxis_title='Date', yaxis_title='Value')
     return alloc_fig, perf_fig
 
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8050))
-    dash_app.run_server(host="0.0.0.0", port=port, debug=True)
+    dash_app.run(host="0.0.0.0", port=port, debug=True)
