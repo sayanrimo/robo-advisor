@@ -22,10 +22,9 @@ with open("finalized_model.sav", "rb") as f:
 symbols = ["GOOGL", "FB", "GS", "MS", "GE", "MSFT"]
 dates = pd.date_range(end=datetime.today(), periods=252)
 np.random.seed(42)
-returns_df = pd.DataFrame(np.random.randn(252, len(symbols)) * 0.01,
-                          index=dates, columns=symbols)
+returns_df = pd.DataFrame(np.random.randn(252, len(symbols)) * 0.01, index=dates, columns=symbols)
 
-# SHAP Explainer (Tree-based)
+# SHAP Explainer (static)
 explainer = shap.TreeExplainer(risk_model)
 sample_data = pd.DataFrame(
     np.array([[30, 2, 1, 1, 2, 2, 2, 2]]),
@@ -54,12 +53,12 @@ dash_app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
 server = dash_app.server
 
 dash_app.layout = dbc.Container([
-    html.H1("Robo Advisor Dashboard", style={'textAlign': 'center'}),
+    html.H1("Robo Advisor Dashboard", style={'textAlign': 'center', 'color': 'white', 'marginTop': '20px'}),
     dcc.Tabs(id="tabs", value='tab-1', children=[
         dcc.Tab(label='Dashboard', value='tab-1'),
         dcc.Tab(label='Model Info', value='tab-2')
     ]),
-    html.Div(id='tabs-content')
+    html.Div(id='tabs-content', style={'marginTop': '20px'})
 ], fluid=True)
 
 @dash_app.callback(Output('tabs-content', 'children'), Input('tabs', 'value'))
@@ -67,34 +66,27 @@ def render_content(tab):
     if tab == 'tab-1':
         return dbc.Row([
             dbc.Col([
-                html.H4("Step 1: Enter Investor Characteristics"),
-                html.Label("Age:"),
-                dcc.Slider(18, 65, 5, value=30, marks=None, tooltip={"placement": "bottom"}, id='age'),
-                html.Label("NetWorth:"),
-                dcc.Slider(0, 5, 1, value=2, marks={0: '-$1M', 1: '0', 2: '$500K', 3: '$1M', 4: '$2M', 5: '$5M'}, id='networth'),
-                html.Label("Income:"),
-                dcc.Slider(0, 5, 1, value=2, marks={0: '-$1M', 1: '0', 2: '$500K', 3: '$1M', 4: '$2M', 5: '$5M'}, id='income'),
-                html.Label("Education Level (scale of 4):"),
-                dcc.Slider(1, 4, 1, value=2, marks=None, tooltip={"placement": "bottom"}, id='edcl'),
-                html.Label("Married:"),
-                dcc.Slider(1, 2, 1, value=1, marks={1: 'No', 2: 'Yes'}, id='married'),
-                html.Label("Kids:"),
-                dcc.Slider(0, 7, 1, value=1, marks=None, tooltip={"placement": "bottom"}, id='kids'),
-                html.Label("Occupation:"),
-                dcc.Slider(1, 4, 1, value=2, marks=None, tooltip={"placement": "bottom"}, id='occat1'),
-                html.Label("Willingness to take Risk:"),
-                dcc.Slider(1, 4, 1, value=2, marks=None, tooltip={"placement": "bottom"}, id='risk'),
+                html.H4("Step 1: Enter Investor Characteristics", style={'color': 'white'}),
+                html.Label("Age:"), dcc.Slider(18, 65, 5, value=30, tooltip={"placement": "bottom"}, id='age'),
+                html.Label("NetWorth:"), dcc.Slider(0, 5, 1, value=2, marks={0: '-$1M', 1: '0', 2: '$500K', 3: '$1M', 4: '$2M', 5: '$5M'}, id='networth'),
+                html.Label("Income:"), dcc.Slider(0, 5, 1, value=2, marks={0: '-$1M', 1: '0', 2: '$500K', 3: '$1M', 4: '$2M', 5: '$5M'}, id='income'),
+                html.Label("Education Level:"), dcc.Slider(1, 4, 1, value=2, id='edcl'),
+                html.Label("Married:"), dcc.Slider(1, 2, 1, value=1, marks={1: 'No', 2: 'Yes'}, id='married'),
+                html.Label("Kids:"), dcc.Slider(0, 7, 1, value=1, id='kids'),
+                html.Label("Occupation:"), dcc.Slider(1, 4, 1, value=2, id='occat1'),
+                html.Label("Willingness to take Risk:"), dcc.Slider(1, 4, 1, value=2, id='risk'),
                 html.Br(),
-                html.Button("CALCULATE RISK TOLERANCE", id='btn_rt', style={'backgroundColor': '#2a9df4', 'color': 'white'})
-            ], width=4),
+                html.Button("CALCULATE RISK TOLERANCE", id='btn_rt', style={'backgroundColor': '#2a9df4', 'color': 'white', 'width': '100%'})
+            ], width=4, style={'backgroundColor': '#111111', 'padding': '20px'}),
+
             dbc.Col([
-                html.H4("Step 2: Asset Allocation and Portfolio Performance"),
-                html.Div(id='output_rt'),
-                html.Label("Select Assets:"),
-                dcc.Dropdown(id='assets', options=[{'label': s, 'value': s} for s in symbols],
-                             value=symbols[:4], multi=True),
+                html.H4("Step 2: Asset Allocation & Portfolio Performance", style={'color': 'white'}),
+                html.Div(id='output_rt', style={'marginBottom': '10px', 'color': 'white'}),
+                html.Label("Select Assets:", style={'color': 'white'}),
+                dcc.Dropdown(id='assets', options=[{'label': s, 'value': s} for s in symbols], value=symbols[:4], multi=True),
                 html.Br(),
-                html.Button("SUBMIT", id='btn_alloc', style={'backgroundColor': '#2a9df4', 'color': 'white'}),
+                html.Button("SUBMIT", id='btn_alloc', style={'backgroundColor': '#2a9df4', 'color': 'white', 'width': '100%'}),
+                html.Br(), html.Br(),
                 dcc.Graph(id='alloc_graph'),
                 dcc.Graph(id='perf_graph')
             ], width=8)
@@ -102,9 +94,9 @@ def render_content(tab):
     elif tab == 'tab-2':
         return html.Div([
             html.H4("Model Explainability with SHAP"),
-            html.P("The model uses a Random Forest to predict risk tolerance. Below is the feature importance visualized using SHAP (SHapley values)."),
+            html.P("The model uses a Random Forest to predict risk tolerance. Below is the feature importance visualized using SHAP."),
             html.Img(src=f"data:image/png;base64,{encoded_image}", style={"width": "100%", "height": "auto"})
-        ])
+        ], style={'padding': '20px'})
 
 @dash_app.callback(
     Output('output_rt', 'children'),
@@ -118,7 +110,7 @@ def predict_rt(n, age, edcl, married, kids, occat1, income, risk, networth):
         return ''
     feat = np.array([[age, edcl, married, kids, occat1, income, risk, networth]])
     rt = risk_model.predict(feat)[0] * 25
-    return f"Risk Tolerance Score: {rt:.2f}"
+    return f"📊 Risk Tolerance Score: {rt:.2f}"
 
 @dash_app.callback(
     [Output('alloc_graph', 'figure'), Output('perf_graph', 'figure')],
@@ -141,7 +133,6 @@ def allocate_plot(n, assets, rt_text):
     perf_fig = go.Figure(data=[go.Scatter(x=cum.index, y=cum.values, line=dict(color='red'))])
     perf_fig.update_layout(title='Portfolio Value of $100 Investment', xaxis_title='Date', yaxis_title='Value')
     return alloc_fig, perf_fig
-
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8050))
