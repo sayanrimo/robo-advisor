@@ -89,7 +89,8 @@ def allocate_plot(n, assets, cap, rt_text):
     return alloc_fig, perf_fig
 
 if __name__ == '__main__':
-    dash_app.run_server(debug=True)
+    dash_app.run(debug=True)
+
 '''
 # Write app.py file
 txt = open('app.py','w')
